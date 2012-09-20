@@ -16,18 +16,19 @@ installPackage()
 
 PHPRepo()
 {
-	grep "deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" /etc/apt/sources.list | grep -v ^#
+	find /etc/apt/ -name *.list | xargs cat | grep "deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" | grep -v ^#
 	if [ $? -ne 0 ]
 	then
 		echo "PHP 5.4 Repository not added."
 		echo "Adding Repository"
-		add-apt-repository -y ppa:ondrej/php5
-		if [ $? -ne 0 ]
+		if [ ! -d /etc/apt/sources.list.d/ ]
 		then
-			echo "Adding Repository Failed"
-			echo "Cannot Continue. Exiting"
-			exit 1
+			mkdir -p /etc/apt/sources.list.d/
 		fi
+		echo "#This Repostory has been added by a script and is not part of the official Ubuntu release">> /etc/apt/sources.list.d/ondrej-php5-precise.list
+		echo "deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" >> /etc/apt/sources.list.d/ondrej-php5-precise.list
+		echo "deb-src http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" >> /etc/apt/sources.list.d/ondrej-php5-precise.list
+
 		echo "Sucessfully added Repository"
 		apt-get update
 	fi
