@@ -14,6 +14,26 @@ installPackage()
 	return "$?"
 }
 
+PHPRepo()
+{
+	find /etc/apt/ -name *.list | xargs cat | grep "deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" | grep -v ^#
+	if [ $? -ne 0 ]
+	then
+		echo "PHP 5.4 Repository not added."
+		echo "Adding Repository"
+		if [ ! -d /etc/apt/sources.list.d/ ]
+		then
+			mkdir -p /etc/apt/sources.list.d/
+		fi
+		echo "#This Repostory has been added by a script and is not part of the official Ubuntu release">> /etc/apt/sources.list.d/ondrej-php5-precise.list
+		echo "deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" >> /etc/apt/sources.list.d/ondrej-php5-precise.list
+		echo "deb-src http://ppa.launchpad.net/ondrej/php5/ubuntu precise main" >> /etc/apt/sources.list.d/ondrej-php5-precise.list
+
+		echo "Sucessfully added Repository"
+		apt-get update
+	fi
+}
+
 start()
 {
 
@@ -26,6 +46,15 @@ start()
 	for package in "${packages[@]}"
 	{
 		echo "Checking $package install status"
+		if [ $package == 'php5-cgi' ]
+		then
+			phpver=$(dpkg-query -W -f='${Version}' $package | awk '{ print substr( $0, 1, 3 ) } ')
+			nothasreq=$(expr $phpver '<' 5.4)	
+			if [ $nothasreq ]
+			then
+				PHPRepo
+			fi
+		fi
 		checkPackageInstall $package
 		if [ $? -ne 0 ]
 		then
@@ -36,18 +65,6 @@ start()
 				echo "exiting"
 				exit 1
 			fi			
-		fi
-
-		if [ $package == 'php5-cgi' ]
-		then
-			phpver=$(dpkg-query -W -f='${Version}' $package | awk '{ print substr( $0, 1, 3 ) } ')
-			nothasreq=$(expr $phpver '<' 5.4)	
-			if [ $nothasreq ]
-			then
-				echo "PHP Version greater than or equal to 5.4 required but lesser installed"
-				echo "Exiting"
-				exit 1
-			fi
 		fi
 
 	}
