@@ -29,7 +29,7 @@ def installPackage(cache,packageName):
     
 def updateSourcesList():
     with open("/etc/apt/sources.list.d/ondrej-php5-precise.list", "w") as php5Source:
-        php5Source.write("deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main")
+        php5Source.write("deb http://ppa.launchpad.net/ondrej/php5/ubuntu precise main\n")
         php5Source.write("deb-src http://ppa.launchpad.net/ondrej/php5/ubuntu precise main")
                     
 def updateCache(cache):
@@ -129,7 +129,7 @@ def main():
             hasslistver=False;
     if hasslistver == False:
         updateSourcesList()
-        cache=updateCache()
+        cache=updateCache(cache)
         
     for package in reqPackages:
         print "Checking Package Install Status:"
