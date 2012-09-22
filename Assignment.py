@@ -74,7 +74,8 @@ def nginxConf(dmn):
 
         location ~ \.php$ {
                 include fastcgi_params;
-		fastcgi_pass unix:/var/run/php5-fpm.sock;
+		#fastcgi_pass unix:/var/run/php5-fpm.sock;
+		fastcgi_pass 127.0.0.1:9000
         }
 }"""%(dmn,dmn,dmn,dmn,dmn))
 	os.symlink("/etc/nginx/sites-available/%s"%dmn, "/etc/nginx/sites-enabled/%s"%dmn)
